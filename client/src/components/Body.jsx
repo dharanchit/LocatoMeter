@@ -1,17 +1,27 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Button, Grid } from '@material-ui/core';
-import { Link, useHistory } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { getToken } from './Commons/commonlyRequiredData';
 
 const useStyles = makeStyles((theme) => ({
     root:{
         display:'flex',
-        justifyContent:'center',
-        alignSelf:'center'
+        textAlign:'center'
     },
     Link:{
         color:'white',
         textDecoration: 'none'
+    },
+    SignUpBtn:{
+        marginTop:'20%',
+    },
+    LoginBtn:{
+        marginTop:'10px',
+    },
+    btnClass:{
+        width:'20%'
     }
 }))
 
@@ -19,17 +29,26 @@ const Body = () => {
     const classes = useStyles();
     const history = useHistory();
 
+    const dispatch = useDispatch();
+
+    const hasToken = useSelector(state => state.auth.token);
+
+    useEffect(() => {
+        setTimeout(()=> {
+            const token = localStorage.getItem("userToken");
+            dispatch({type:"VERIFY_TOKEN",payload:token});
+        },0)
+    },[])
+
     return(
-        <div className={classes.root}>
-            <Grid container>
-                <Grid item xs={12}>
-                    <Button variant="contained" color="primary"><Link className={classes.Link} to="/signup">Sign Up</Link></Button>
-                </Grid>
-                <Grid item xs={12}>
-                    <Button variant="contained" color="primary"><Link className={classes.Link} to="/signin">Login</Link></Button>
-                </Grid>
+        <Grid container className={classes.root}>
+            <Grid item xs={12} className={classes.SignUpBtn}>
+                <Button variant="contained" onClick={() => history.push("/signup")} className={classes.btnClass} color="primary">Sign Up</Button>
+            </Grid>
+            <Grid item xs={12} className={classes.LoginBtn}>
+                <Button variant="contained" onClick={() => history.push("/signin")} className={classes.btnClass} color="primary">Login</Button>
+            </Grid>
         </Grid>
-        </div>
     );
 }
 
