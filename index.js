@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const user = require('./models/user');
 const { Db } = require('mongodb');
+const cors = require('cors');
 
 require('dotenv').config();
 
@@ -11,6 +12,7 @@ const app = express();
 
 app.use(express.urlencoded({extended:false}));
 app.use(express.json());
+app.use(cors({origin:'http://localhost:3000'}));
 
 mongoose.connect(`mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASS}@cluster0.pusc3.mongodb.net/${process.env.MONGODB_NAME}?retryWrites=true&w=majority`,{
     useNewUrlParser:true,
@@ -39,7 +41,7 @@ app.post("/signup", async (req,res) => {
     }
     try{
         const hashedPassword = await bcrypt.hash(password,10);
-        var saveDate = new user({
+        new user({
             'username':username,
             'email':email,
             'password': hashedPassword,
@@ -52,7 +54,7 @@ app.post("/signup", async (req,res) => {
                     if(err){
                         return res.status(404).send({message:"Error"})
                     }
-                    return res.status(200).json({token:token});
+                    return res.status(200).json({data:result,token:token});
                 })
             }
         })
@@ -76,14 +78,14 @@ app.post("/login",async (req,res) => {
             })
         }
     } catch (err){
-        console.log(err);
+        return res.status(401).send({message:"Something went wrong"})
     }
 })
 
 const routes = require('./routes');
 routes(app);
 
-const PORT = 3000;
+const PORT = 9000;
 app.listen(PORT,() => {
     console.log(`App listening on port ${PORT}`);
 })
